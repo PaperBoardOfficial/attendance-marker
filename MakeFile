@@ -1,0 +1,28 @@
+FUNCTION = attendance
+PYTHON_VERSION=$(shell python3.9 -c 'import sys; print("%d.%d"% sys.version_info[0:2])' )
+date = $(shell date)
+$(info creating build using system python3 version = $(PYTHON_VERSION) )
+$(info running build at  $(date) )
+all: build
+
+.PHONY: clean build
+
+clean:
+	rm -rf build
+
+build: clean
+	mkdir -p build/site-packages
+	python3.9 -m venv build/$(FUNCTION)
+	. build/$(FUNCTION)/bin/activate; pip install  -r requirements.txt
+	. build/$(FUNCTION)/bin/activate; pip install --platform manylinux2014_x86_64 --target=build/$(FUNCTION)/lib/python$(PYTHON_VERSION)/site-packages --implementation cp --python-version 3.9 --only-binary=:all: --upgrade pycryptodome==3.18.0
+	zip -r build/$(FUNCTION).zip . -x "*.DS_Store*" "*.git*" "build*" "Makefile" "requirements.txt" "env*" "venv*" "test*"
+	cp -r build/$(FUNCTION)/lib/python$(PYTHON_VERSION)/site-packages/bs4 build/site-packages
+	cp -r build/$(FUNCTION)/lib/python$(PYTHON_VERSION)/site-packages/certifi build/site-packages
+	cp -r build/$(FUNCTION)/lib/python$(PYTHON_VERSION)/site-packages/Crypto build/site-packages
+	cp -r build/$(FUNCTION)/lib/python$(PYTHON_VERSION)/site-packages/requests build/site-packages
+	cp -r build/$(FUNCTION)/lib/python$(PYTHON_VERSION)/site-packages/urllib3 build/site-packages
+	cp -r build/$(FUNCTION)/lib/python$(PYTHON_VERSION)/site-packages/soupsieve build/site-packages
+	cp -r build/$(FUNCTION)/lib/python$(PYTHON_VERSION)/site-packages/idna build/site-packages
+	cp -r build/$(FUNCTION)/lib/python$(PYTHON_VERSION)/site-packages/charset_normalizer build/site-packages
+	cd build/site-packages; zip -g -r ../$(FUNCTION).zip . -x "*__pycache__*"
+	echo  "Build is successful"

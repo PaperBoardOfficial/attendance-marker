@@ -1,0 +1,13 @@
+{
+  "details": [
+    {
+      "username": "email_id1",
+      "password": "password1"
+    },
+    
+    {
+      "username": "email_id2",
+      "password": "password2"
+    }
+  ]
+}
